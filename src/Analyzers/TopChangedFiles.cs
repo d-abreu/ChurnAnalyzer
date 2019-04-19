@@ -1,10 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ChurnAnalyzers{
-    public class TopChangesFiles{
-
+namespace ChurnAnalyzers
+{
+    public class TopChangedFiles : IAnalyzer<IEnumerable<TopChangedFiles.Result>>
+    {
+        public class Result{
+            public string FileName {get; set;}
+            public int TotalChanges {get; set;}
+        }
         public class Parameters{
             public int Take {get;set;} = 10;
             public List<string> Exclusions {get;set;} = new List<string>{".csproj"};
@@ -12,15 +16,13 @@ namespace ChurnAnalyzers{
         }
 
         private Parameters Options {get;}
-        public TopChangesFiles(Parameters p)
+        public TopChangedFiles(Parameters p)
         {
             Options = p;
         }
-        public void Execute()
+        public IEnumerable<TopChangedFiles.Result> Execute()
         {
-            var counter = 1;
-
-            Options.Commits
+            return Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .GroupBy(r => r.FileName)
                 .Where(r => {
@@ -31,14 +33,13 @@ namespace ChurnAnalyzers{
                     }
                     return true;
                 })
-                .Select(r => new { 
+                .Select(r => new Result { 
                     FileName = r.Key,
                     TotalChanges = r.Count()
                 })
                 .OrderByDescending(r => r.TotalChanges)
                 .Take(Options.Take)
-                .ToList()
-                .ForEach(r => Console.WriteLine($"{counter++}. {r.FileName} Changes:{r.TotalChanges}"));
+                .AsEnumerable();
         }
     }
 }

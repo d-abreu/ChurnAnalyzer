@@ -16,11 +16,13 @@ namespace ChurnAnalyzers
             
             Console.WriteLine($"Total changes: {commits.Count} #Days with checkins: {daysWithCommits} Avg:{avg}");
 
-            new TopChangesFiles(new TopChangesFiles.Parameters{
+            new TopChangedFiles(new TopChangedFiles.Parameters{
                 Commits = commits,
                 Exclusions = new List<string>{"csproj"},
                 Take = 10
-            }).Execute();
+            }).Execute().ToConsole();
+
+            
         }
     }
 }
