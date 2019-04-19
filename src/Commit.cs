@@ -20,14 +20,12 @@ namespace ChurnAnalyzers
             public FileChanged(string name, int added, int removed)
             {
                 FileName = name;
-                Changed = Math.Abs(added - removed);
-                Added = added - Changed;
-                Removed = removed - Changed;
+                Added = added;
+                Removed = removed;
             }
             public string FileName {get;}
             public int Added {get;}
             public int Removed {get;}
-            public int Changed {get;}
         }
     }
 }

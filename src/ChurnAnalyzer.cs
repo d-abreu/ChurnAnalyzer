@@ -18,11 +18,14 @@ namespace ChurnAnalyzers
 
             new TopChangedFiles(new TopChangedFiles.Parameters{
                 Commits = commits,
-                Exclusions = new List<string>{"csproj"},
                 Take = 10
             }).Execute().ToConsole();
 
-            
+            Console.WriteLine("----");
+
+            new ChurnedFiles(new ChurnedFiles.Parameters{
+                Commits = commits,
+            }).Execute().Take(10).ToConsole();
         }
     }
 }
