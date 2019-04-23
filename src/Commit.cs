@@ -13,8 +13,8 @@ namespace ChurnAnalyzers
                 FileInfos.AddLast(item);
             }
         }
-        public DateTime Date {get;}
-        public LinkedList<FileChanged> FileInfos {get;} = new LinkedList<FileChanged>();
+        public DateTime Date { get; }
+        public LinkedList<FileChanged> FileInfos { get; } = new LinkedList<FileChanged>();
         public class FileChanged
         {
             public FileChanged(string name, int added, int removed)
@@ -23,9 +23,9 @@ namespace ChurnAnalyzers
                 Added = added;
                 Removed = removed;
             }
-            public string FileName {get;}
-            public int Added {get;}
-            public int Removed {get;}
+            public string FileName { get; }
+            public int Added { get; }
+            public int Removed { get; }
         }
     }
 }

@@ -4,23 +4,26 @@ using Math = System.Math;
 
 namespace ChurnAnalyzers
 {
-    public class ChurnedFiles : IAnalyzer<IEnumerable<ChurnedFiles.Result>>{
-        
-        public class Result{
-            public string FileName {get; set;}
-            public int ChurnedLOC {get;set;}
-            public int TotalLOC {get;set;}
-            public int DeletedLOC {get;set;}
-            public decimal M1 {get;set;}
-            public decimal M2 {get;set;}
-            public decimal M7 {get;set;}
+    public class ChurnedFiles : IAnalyzer<IEnumerable<ChurnedFiles.Result>>
+    {
+
+        public class Result
+        {
+            public string FileName { get; set; }
+            public int ChurnedLOC { get; set; }
+            public int TotalLOC { get; set; }
+            public int DeletedLOC { get; set; }
+            public decimal M1 { get; set; }
+            public decimal M2 { get; set; }
+            public decimal M7 { get; set; }
         }
         public Parameters Options { get; }
 
-        public class Parameters{
-            public List<Commit> Commits {get;set;} = new List<Commit>();
-            public List<string> Inclusions {get;set;} = new List<string>{".cs",".xaml"};
-            public List<string> Exclusions {get;set;} = new List<string>{
+        public class Parameters
+        {
+            public List<Commit> Commits { get; set; } = new List<Commit>();
+            public List<string> Inclusions { get; set; } = new List<string> { ".cs", ".xaml" };
+            public List<string> Exclusions { get; set; } = new List<string>{
                 ".csproj",
                 ".html",
                 ".js",
@@ -42,15 +45,16 @@ namespace ChurnAnalyzers
             return Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .GroupBy(r => r.FileName)
-                .Where(r => {
-                    if(Options.Exclusions.Any(t => r.Key.Contains(t)))
+                .Where(r =>
+                {
+                    if (Options.Exclusions.Any(t => r.Key.Contains(t)))
                         return false;
-                    if(Options.Inclusions.Any(t => r.Key.Contains(t)))
+                    if (Options.Inclusions.Any(t => r.Key.Contains(t)))
                         return true;
-                    
+
                     return false;
                 })
-                .Select(r => 
+                .Select(r =>
                 {
                     var commits = r.ToList();
                     var fileName = r.Key;
@@ -61,26 +65,28 @@ namespace ChurnAnalyzers
                     foreach (var item in commits.Skip(1))
                     {
                         var diff = item.Added - item.Removed;
-                        churnedLOC+= diff < 0 ? 0 : Math.Abs(diff) + (item.Added - Math.Abs(diff));                        
+                        churnedLOC += diff < 0 ? 0 : Math.Abs(diff) + (item.Added - Math.Abs(diff));
                         deletedLOC += item.Removed;
                         totalLOC = totalLOC + item.Added - item.Removed;
                     }
 
-                    return new Result{
+                    return new Result
+                    {
                         FileName = fileName,
                         ChurnedLOC = churnedLOC,
                         DeletedLOC = deletedLOC,
                         TotalLOC = totalLOC
                     };
                 })
-                .Select(r => new Result{
+                .Select(r => new Result
+                {
                     FileName = r.FileName,
                     ChurnedLOC = r.ChurnedLOC,
                     TotalLOC = r.TotalLOC,
                     DeletedLOC = r.DeletedLOC,
-                    M1 = (decimal)r.ChurnedLOC / Math.Max((decimal)r.TotalLOC,1),
-                    M2 = (decimal)r.DeletedLOC / Math.Max((decimal)r.TotalLOC,1),
-                    M7 = (decimal)r.ChurnedLOC / Math.Max((decimal)r.DeletedLOC,1)
+                    M1 = (decimal)r.ChurnedLOC / Math.Max((decimal)r.TotalLOC, 1),
+                    M2 = (decimal)r.DeletedLOC / Math.Max((decimal)r.TotalLOC, 1),
+                    M7 = (decimal)r.ChurnedLOC / Math.Max((decimal)r.DeletedLOC, 1)
                 })
                 .OrderByDescending(r => r.M1)
                 .AsEnumerable();

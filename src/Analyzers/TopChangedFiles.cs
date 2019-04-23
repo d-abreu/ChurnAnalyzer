@@ -5,17 +5,19 @@ namespace ChurnAnalyzers
 {
     public class TopChangedFiles : IAnalyzer<IEnumerable<TopChangedFiles.Result>>
     {
-        public class Result{
-            public string FileName {get; set;}
-            public int TotalChanges {get; set;}
+        public class Result
+        {
+            public string FileName { get; set; }
+            public int TotalChanges { get; set; }
         }
-        public class Parameters{
-            public int Take {get;set;} = 10;
-            public List<string> Exclusions {get;set;} = new List<string>{".csproj"};
-            public List<Commit> Commits {get;set;} = new List<Commit>();
+        public class Parameters
+        {
+            public int Take { get; set; } = 10;
+            public List<string> Exclusions { get; set; } = new List<string> { ".csproj" };
+            public List<Commit> Commits { get; set; } = new List<Commit>();
         }
 
-        private Parameters Options {get;}
+        private Parameters Options { get; }
         public TopChangedFiles(Parameters p)
         {
             Options = p;
@@ -25,15 +27,17 @@ namespace ChurnAnalyzers
             return Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .GroupBy(r => r.FileName)
-                .Where(r => {
+                .Where(r =>
+                {
                     foreach (var item in Options.Exclusions)
                     {
-                        if(r.Key.Contains(item))
+                        if (r.Key.Contains(item))
                             return false;
                     }
                     return true;
                 })
-                .Select(r => new Result { 
+                .Select(r => new Result
+                {
                     FileName = r.Key,
                     TotalChanges = r.Count()
                 })

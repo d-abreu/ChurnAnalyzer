@@ -9,19 +9,21 @@ namespace ChurnAnalyzers
     {
         public Parameters Options { get; }
 
-        public class Parameters{
-            public List<Commit> Commits {get;set;} = new List<Commit>();
-            public List<string> Exclusions {get;set;} = new List<string>{".csproj",".json"};
+        public class Parameters
+        {
+            public List<Commit> Commits { get; set; } = new List<Commit>();
+            public List<string> Exclusions { get; set; } = new List<string> { ".csproj", ".json" };
         }
 
-        public class Result{
-            public string FirstFile {get;set;}
-            public string SecondFile {get;set;}
-            public int ChangeCount {get;set;}
-            public decimal Coupling {get;set;}
-            public string Description {get;set;}
+        public class Result
+        {
+            public string FirstFile { get; set; }
+            public string SecondFile { get; set; }
+            public int ChangeCount { get; set; }
+            public decimal Coupling { get; set; }
+            public string Description { get; set; }
         }
-        
+
         public CoupledFiles(Parameters options)
         {
             Options = options;
@@ -34,8 +36,9 @@ namespace ChurnAnalyzers
             var fileNames = Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .Select(r => r.FileName)
-                .Where(r => {
-                     if(Options.Exclusions.Any(t => r.Contains(t)))
+                .Where(r =>
+                {
+                    if (Options.Exclusions.Any(t => r.Contains(t)))
                         return false;
                     return true;
                 })
@@ -51,18 +54,20 @@ namespace ChurnAnalyzers
                                         .SelectMany(r => r.FileInfos)
                                         .GroupBy(r => r.FileName)
                                         .Where(r => r.Key != item)
-                                        .ToDictionary(key => key.Key, value => value.Count());                
-                
-                Parallel.ForEach(coupleCountDict, (r) => {
+                                        .ToDictionary(key => key.Key, value => value.Count());
+
+                Parallel.ForEach(coupleCountDict, (r) =>
+                {
                     var coupling = (decimal)r.Value / (decimal)changeCount;
                     res.Add(
-                        new Result{
+                        new Result
+                        {
                             FirstFile = item,
                             ChangeCount = changeCount,
                             SecondFile = r.Key,
                             Coupling = coupling,
                             Description = $"Coupling {coupling:p2} in {r.Value}/{changeCount}"
-                    });
+                        });
                 });
             });
 
