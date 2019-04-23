@@ -19,7 +19,6 @@ namespace ChurnAnalyzers
 
         public class Parameters{
             public List<Commit> Commits {get;set;} = new List<Commit>();
-
             public List<string> Inclusions {get;set;} = new List<string>{".cs",".xaml"};
             public List<string> Exclusions {get;set;} = new List<string>{
                 ".csproj",
@@ -44,16 +43,11 @@ namespace ChurnAnalyzers
                 .SelectMany(r => r.FileInfos)
                 .GroupBy(r => r.FileName)
                 .Where(r => {
-                    foreach (var item in Options.Exclusions)
-                    {
-                        if(r.Key.Contains(item))
-                            return false;
-                    }
-                    foreach (var item in Options.Inclusions)
-                    {
-                        if(r.Key.Contains(item))
-                            return true;
-                    }
+                    if(Options.Exclusions.Any(t => r.Key.Contains(t)))
+                        return false;
+                    if(Options.Inclusions.Any(t => r.Key.Contains(t)))
+                        return true;
+                    
                     return false;
                 })
                 .Select(r => 
@@ -67,12 +61,7 @@ namespace ChurnAnalyzers
                     foreach (var item in commits.Skip(1))
                     {
                         var diff = item.Added - item.Removed;
-                        if(diff < 0)
-                            churnedLOC += 0;
-                        else{
-                            churnedLOC += Math.Abs(diff) + (item.Added - Math.Abs(diff));
-                        }
-                    
+                        churnedLOC+= diff < 0 ? 0 : Math.Abs(diff) + (item.Added - Math.Abs(diff));                        
                         deletedLOC += item.Removed;
                         totalLOC = totalLOC + item.Added - item.Removed;
                     }
@@ -93,7 +82,7 @@ namespace ChurnAnalyzers
                     M2 = (decimal)r.DeletedLOC / Math.Max((decimal)r.TotalLOC,1),
                     M7 = (decimal)r.ChurnedLOC / Math.Max((decimal)r.DeletedLOC,1)
                 })
-                .OrderByDescending(r => r.TotalLOC)
+                .OrderByDescending(r => r.M1)
                 .AsEnumerable();
         }
     }
