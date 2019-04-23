@@ -36,12 +36,7 @@ namespace ChurnAnalyzers
             var fileNames = Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .Select(r => r.FileName)
-                .Where(r =>
-                {
-                    if (Options.Exclusions.Any(t => r.Contains(t)))
-                        return false;
-                    return true;
-                })
+                .Where(r => !Options.Exclusions.Any(t => r.Contains(t)))
                 .Distinct()
                 .ToArray();
 

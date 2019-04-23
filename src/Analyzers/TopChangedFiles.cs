@@ -27,15 +27,7 @@ namespace ChurnAnalyzers
             return Options.Commits
                 .SelectMany(r => r.FileInfos)
                 .GroupBy(r => r.FileName)
-                .Where(r =>
-                {
-                    foreach (var item in Options.Exclusions)
-                    {
-                        if (r.Key.Contains(item))
-                            return false;
-                    }
-                    return true;
-                })
+                .Where(r => !Options.Exclusions.Any(t => r.Key.Contains(t)))
                 .Select(r => new Result
                 {
                     FileName = r.Key,
