@@ -5,15 +5,17 @@ namespace ChurnAnalyzers
 {
     public class Commit
     {
-        public Commit(DateTime date, IEnumerable<FileChanged> changes)
+        public Commit(string author, DateTime date, IEnumerable<FileChanged> changes)
         {
             Date = date;
+            Author = author;
             foreach (var item in changes)
             {
                 FileInfos.AddLast(item);
             }
         }
         public DateTime Date { get; }
+        public string Author { get; }
         public LinkedList<FileChanged> FileInfos { get; } = new LinkedList<FileChanged>();
         public class FileChanged
         {

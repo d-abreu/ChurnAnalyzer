@@ -30,6 +30,7 @@ namespace ChurnAnalyzers
                         if (author == null)
                             break;
 
+                        author = author.TrimStart('-');
                         var date = ts.ReadLine();
                         var commitDate = DateTime.Parse(date);
                         var modificationTokens = new LinkedList<(string, int, int)>();
@@ -51,7 +52,7 @@ namespace ChurnAnalyzers
                         }
 
                         if (modificationTokens.Any())
-                            yield return new Commit(commitDate, modificationTokens.Select(r => new Commit.FileChanged(r.Item1, r.Item2, r.Item3)));
+                            yield return new Commit(author, commitDate, modificationTokens.Select(r => new Commit.FileChanged(r.Item1, r.Item2, r.Item3)));
                     }
 
                 }
