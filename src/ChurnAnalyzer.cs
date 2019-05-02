@@ -8,7 +8,7 @@ namespace ChurnAnalyzers
     {
         public static void Main(string[] args)
         {
-            GitLogReader glr = new GitLogReader(@"gitLogs\gitfull.log");
+            GitLogReader glr = new GitLogReader(@"gitLogs\git.log");
             var commits = glr.Read().ToList();
 
             var daysWithCommits = commits.Select(r => r.Date).Distinct().Count();

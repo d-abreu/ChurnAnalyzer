@@ -5,7 +5,6 @@ using System.Linq;
 
 namespace ChurnAnalyzers
 {
-
     class GitLogReader
     {
         private string FileName { get; }
@@ -13,8 +12,6 @@ namespace ChurnAnalyzers
         {
             FileName = fileName;
         }
-
-        private DateTime NextCommitDate { get; set; } = DateTime.MaxValue;
         public IEnumerable<Commit> Read()
         {
             using (var fs = new FileStream(FileName, FileMode.Open))
@@ -22,36 +19,38 @@ namespace ChurnAnalyzers
                 using (TextReader ts = new StreamReader(fs))
                 {
                     bool shouldContinue = true;
+                    var isEmptyCommit = false;
+                    string token = null;
+
                     while (shouldContinue)
                     {
-                        string date = null;
-                        string token;
+                        string author = isEmptyCommit ? token : ts.ReadLine();
+                        isEmptyCommit = false;
+
+                        if (author == null)
+                            break;
+
+                        var date = ts.ReadLine();
+                        var commitDate = DateTime.Parse(date);
+                        var modificationTokens = new LinkedList<(string, int, int)>();
 
                         while (!string.IsNullOrWhiteSpace(token = ts.ReadLine()))
                         {
-                            date = token;
-                        }
-                        if (date == null && NextCommitDate != DateTime.MaxValue)
-                            date = NextCommitDate.ToShortDateString();
-                        var commitDate = DateTime.Parse(date);
-
-                        LinkedList<(string, int, int)> modificationTokens = new LinkedList<(string, int, int)>();
-                        DateTime tmp;
-                        while (!DateTime.TryParse(token = ts.ReadLine(), out tmp))
-                        {
-                            if (token == null)
+                            if (token.Substring(0, 2) == "--")
+                            {
+                                isEmptyCommit = true;
                                 break;
+                            }
+
                             var changedFileToken = token.Split('\t', StringSplitOptions.RemoveEmptyEntries).ToList();
-                            var name = changedFileToken.Last();
+                            var fileName = changedFileToken.Last();
                             var added = changedFileToken[0] == "-" ? 0 : int.Parse(changedFileToken[0]);
                             var removed = changedFileToken[1] == "-" ? 0 : int.Parse(changedFileToken[1]);
 
-                            modificationTokens.AddLast((name, added, removed));
+                            modificationTokens.AddLast((fileName, added, removed));
                         }
-                        NextCommitDate = tmp;
-                        if (!modificationTokens.Any())
-                            shouldContinue = false;
-                        else
+
+                        if (modificationTokens.Any())
                             yield return new Commit(commitDate, modificationTokens.Select(r => new Commit.FileChanged(r.Item1, r.Item2, r.Item3)));
                     }
 
