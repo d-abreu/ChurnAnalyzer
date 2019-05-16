@@ -13,6 +13,8 @@ namespace ChurnAnalyzers
 
             new GitStatistics(commits).Execute().ToConsole();
 
+            Console.WriteLine("----");
+
             new TopChangedFiles(new TopChangedFiles.Parameters
             {
                 Commits = commits,
@@ -21,12 +23,19 @@ namespace ChurnAnalyzers
 
             Console.WriteLine("----");
 
-            new ChurnedFiles(new ChurnedFiles.Parameters
-            {
+            new FileAge(new FileAge.Parameters{
                 Commits = commits,
-            }).Execute().Take(10).ToConsole();
+                Take = 40
+            }).Execute().ToConsole();
 
-            new CoupledFiles(new CoupledFiles.Parameters { Commits = commits }).Execute().ToConsole();
+            // new ChurnedFiles(new ChurnedFiles.Parameters
+            // {
+            //     Commits = commits,
+            // }).Execute().Take(10).ToConsole();
+
+            // Console.WriteLine("----");
+
+            // new CoupledFiles(new CoupledFiles.Parameters { Commits = commits }).Execute().ToConsole();
         }
     }
 }

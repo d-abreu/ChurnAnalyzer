@@ -16,6 +16,7 @@ namespace ChurnAnalyzers
         }
         public DateTime Date { get; }
         public string Author { get; }
+
         public LinkedList<FileChanged> FileInfos { get; } = new LinkedList<FileChanged>();
         public class FileChanged
         {
