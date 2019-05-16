@@ -1,0 +1,4 @@
+- (ChurnedFiles) Rethink implementation
+- (FileAge) Return mid-age files
+- Correlate changes with file FileAge
+- Add more analyzers
